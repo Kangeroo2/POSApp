@@ -1,0 +1,25 @@
+<mat-spinner *ngIf="isLoading"></mat-spinner>
+<mat-accordion multi="true" *ngIf="vendors.length > 0 && !isLoading">
+  <mat-expansion-panel *ngFor="let vendor of vendors">
+    <mat-expansion-panel-header>
+        {{ vendor.vendorName }}
+      </mat-expansion-panel-header>
+    <p>First Name: {{ vendor.firstName }}</p>
+    <p>Last Name: {{ vendor.lastName }}</p>
+    <p>Commission: {{ vendor.commission }}%</p>
+    <p>Email: {{ vendor.email }}</p>
+    <p>Address: {{ vendor.address }}</p>
+    <p>Phone Number: {{ vendor.phoneNumber }}</p>
+    <p>Start Date: {{ vendor.startDate | date:'mediumDate' }}</p>
+    <p>Contract Length: {{ vendor.contractLength }} months</p>
+    <div class="vendor-image">
+      <img [src]="vendor.imagePath" [alt]="vendor.vendorName">
+    </div>
+    <mat-action-row *ngIf="userIsAuthenticated">
+      <a mat-button color="primary" [routerLink]="['/edit/vendor',vendor.id]">EDIT</a>
+      <button mat-button color="warn" (click)="onDelete(vendor.id)">DELETE</button>
+    </mat-action-row>
+  </mat-expansion-panel>
+</mat-accordion>
+<mat-paginator [length]="totalVendors" [pageSize]="vendorsPerPage" [pageSizeOptions]="pageSizeOptions" (page)="onChangedPage($event)" *ngIf="vendors.length > 0"></mat-paginator>
+<p class="info-text mat-body-1" *ngIf="vendors.length <=0 && !isLoading">No vendors added yet!</p>
