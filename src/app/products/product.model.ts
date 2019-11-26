@@ -6,4 +6,5 @@ export interface Product {
   category: string;
   cost: string;
   imagePath: string;
+  creator: string;
 }

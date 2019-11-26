@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import {Observable, Subscription} from 'rxjs';
 
 import { ProductsService } from '../products.service';
 import { Product } from '../product.model';
 import { mimeType } from './mime-type.validator';
 import { Vendor } from 'src/app/vendors/vendor.model';
-import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
+import { AuthService } from 'src/app/auth/auth.service';
 
 
 @Component({
@@ -15,7 +16,7 @@ import {map, startWith} from 'rxjs/operators';
   templateUrl: './product-create.component.html',
   styleUrls: ['./product-create.component.css']
 })
-export class ProductCreateComponent implements OnInit {
+export class ProductCreateComponent implements OnInit, OnDestroy {
   enteredName = '';
   enteredDescription = '';
   enteredCategory = '';
@@ -27,13 +28,16 @@ export class ProductCreateComponent implements OnInit {
   imagePreview: string;
   private mode = 'create';
   private productId: string;
-  myControl = new FormControl();
-  options: string[] = ['One', 'Two', 'Three', 'Four'];
-  filteredOptions: Observable<string[]>;
+  private authStatusSub: Subscription;
 
-  constructor(public productsService: ProductsService, public route: ActivatedRoute) {}
+  constructor(public productsService: ProductsService, public route: ActivatedRoute, private authService: AuthService) {}
 
   ngOnInit() {
+    this.authStatusSub = this.authService
+      .getAuthStatusListener()
+      .subscribe(authStatus => {
+        this.isLoading = false;
+      });
 
     this.form = new FormGroup({
       name: new FormControl(null,
@@ -70,7 +74,8 @@ export class ProductCreateComponent implements OnInit {
             price: productData.price,
             category: productData.category,
             cost: productData.cost,
-            imagePath: productData.imagePath
+            imagePath: productData.imagePath,
+            creator: productData.creator
           };
           this.form.setValue({
             name: this.product.name,
@@ -126,10 +131,8 @@ export class ProductCreateComponent implements OnInit {
     }
     this.form.reset();
   }
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
 
-    return this.options.filter(option => option.toLowerCase().includes(filterValue));
+  ngOnDestroy() {
+    this.authStatusSub.unsubscribe();
   }
-
 }

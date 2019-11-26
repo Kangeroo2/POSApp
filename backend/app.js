@@ -10,7 +10,14 @@ const userRoutes = require('./routes/user');
 
 const app = express();
 
-mongoose.connect("mongodb+srv://andrewmartin1186:dudley12@posapp-opyi8.mongodb.net/test", { useCreateIndex: true, useNewUrlParser: true })
+mongoose
+  .connect(
+    "mongodb+srv://andrewmartin1186:" +
+      process.env.MONGO_ATLAS_PW +
+      "@topforce-2rdmi.mongodb.net/test",
+      { useCreateIndex: true,
+        useNewUrlParser: true
+    })
   .then(() => {
     console.log('Connected to database!');
   })

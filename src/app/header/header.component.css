@@ -15,3 +15,7 @@ ul {
 .spacer {
   flex: 1 1 auto;
 }
+.title1 {
+  display: flex;
+  margin: 0 10px;
+}

@@ -1,127 +1,32 @@
 const express = require('express');
-const Product = require('../models/product');
-const multer = require("multer");
+
+const ProductController = require("../controllers/products");
 
 const checkAuth = require('../middleware/check-auth');
+const extractFile = require('../middleware/file');
 
 const router = express.Router();
 
-const MIME_TYPE_MAP = {
-  'image/png': 'png',
-  'image/jpeg': 'jpg',
-  'image/jpg': 'jpg'
-};
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const isValid = MIME_TYPE_MAP[file.mimetype];
-    let error = new Error('Invalid mime type');
-    if (isValid) {
-      error = null;
-    }
-    cb(error, "backend/images");
-  },
-  filename: (req, file, cb) => {
-    const name = file.originalname.toLowerCase().split(' ').join('-');
-    const ext = MIME_TYPE_MAP[file.mimetype];
-    cb(null, name + '-' + Date.now() + '.' + ext);
-  }
-});
 
 router.post(
   "",
   checkAuth,
-  multer({storage: storage}).single("image"), (req, res, next) => {
-  const url = req.protocol + '://' + req.get("host");
-  const product = new Product({
-    name: req.body.name,
-    description: req.body.description,
-    price: req.body.price,
-    category: req.body.category,
-    cost: req.body.cost,
-    imagePath: url + "/images/" + req.file.filename
-  });
-  product.save().then(createdProduct =>{
-    res.status(201).json({
-      message: 'Product added successfully!',
-      product: {
-        id: createdProduct._id,
-        name: createdProduct.name,
-        description: createdProduct.description,
-        price: createdProduct.price,
-        category: createdProduct.category,
-        cost: createdProduct.cost,
-        imagePath: createdProduct.imagePath
-      }
-    });
-  });
-
-});
+  extractFile,
+  ProductController.createProduct
+);
 
 router.put(
   "/:id",
   checkAuth,
-  multer({storage: storage}).single("image"),
-  (req, res, next) => {
-    let imagePath = req.body.imagePath;
-    if (req.file) {
-      const url = req.protocol + "://" + req.get("host");
-      imagePath = url + "/images/" +req.file.filename
-    }
-    const product = new Product({
-    _id: req.body.id,
-    name: req.body.name,
-    description: req.body.description,
-    price: req.body.price,
-    category: req.body.category,
-    cost: req.body.cost,
-    imagePath: imagePath
-  });
-  Product.updateOne({_id: req.params.id}, product).then(result => {
-    console.log(result);
-    res.status(200).json({ message: "Update successful!"});
-  });
-});
+  extractFile,
+  ProductController.updateProduct
+  );
 
-router.get("",(req, res, next) => {
-  const pageSize = +req.query.pagesize;
-  const currentPage = +req.query.page;
-  const productQuery = Product.find();
-  let fetchedProducts;
-  if (pageSize && currentPage) {
-    productQuery
-      .skip(pageSize * (currentPage - 1))
-      .limit(pageSize);
-  }
-  productQuery
-    .then(documents => {
-      fetchedProducts = documents;
-      return Product.countDocuments();
-    })
-    .then(count => {
-      res.status(200).json({
-        message: 'Products fetched successfully!',
-        products: fetchedProducts,
-        maxProducts: count
-    });
-});
-})
+router.get("", ProductController.getProducts);
 
-router.get("/:id", (req, res, next) => {
-  Product.findById(req.params.id).then(product => {
-    if  (product) {
-      res.status(200).json (product);
-    } else {
-      res.status(404).json({message: 'Product not found!'})
-    }
-  })
-});
+router.get("/:id", ProductController.getSingleProducts);
 
-router.delete("/:id", checkAuth, (req, res, next) => {
-  Product.deleteOne({_id: req.params.id}).then(result => {
-    console.log(result);
-  })
-  res.status(200).json({ message: "Product deleted!" });
-});
+router.delete("/:id", checkAuth, ProductController.deleteProduct);
 
 module.exports = router;

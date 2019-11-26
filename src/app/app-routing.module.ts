@@ -4,9 +4,7 @@ import { ProductListComponent } from './products/product-list/product-list.compo
 import { ProductCreateComponent } from './products/product-create/product-create.component';
 import { VendorListComponent } from './vendors/vendor-list/vendor-list.component';
 import { VendorCreateComponent } from './vendors/vendor-create/vendor-create.component';
-import { from } from 'rxjs';
-import { LoginComponent } from './auth/login/login.component';
-import { SignupComponent } from './auth/signup/signup.component';
+
 import { AuthGuard } from './auth/auth.guard';
 
 const routes: Routes = [
@@ -14,10 +12,10 @@ const routes: Routes = [
   { path: 'vendorList', component: VendorListComponent, canActivate: [AuthGuard] },
   { path: 'create', component: ProductCreateComponent, canActivate: [AuthGuard] },
   { path: 'edit/:productId', component: ProductCreateComponent, canActivate: [AuthGuard] },
-  { path: 'createVendor', component: VendorCreateComponent, canActivate: [AuthGuard] },
-  { path: 'edit/vendor/:vendorId', component: VendorCreateComponent, canActivate: [AuthGuard] },
-  { path: 'login', component: LoginComponent },
-  { path: 'signup', component: SignupComponent },
+  { path: 'createVendor', component: VendorCreateComponent },
+  { path: 'edit/vendor/:vendorId', component: VendorCreateComponent },
+  { path: 'auth', loadChildren: './auth/auth.module#AuthModule'}
+
 ];
 
 @NgModule({
