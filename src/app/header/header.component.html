@@ -1,6 +1,8 @@
 <mat-toolbar color="primary">
-  <span>
-    <a routerLink="/">My Products 123</a>
+  <span class="title1">
+    <a routerLink="/">Product</a>
+  </span>
+  <span *ngIf="userIsAuthenticated" class="title2">
     <a routerLink= "/vendorList">Vendor List</a>
   </span>
   <span class="spacer"></span>
@@ -12,10 +14,10 @@
       <a mat-button routerLink="/createVendor" routerLinkActive="mat-accent">New Vendor</a>
     </li>
     <li *ngIf="!userIsAuthenticated">
-      <a mat-button routerLink="/login" routerLinkActive="mat-accent">Login</a>
+      <a mat-button routerLink="/auth/login" routerLinkActive="mat-accent">Login</a>
     </li>
     <li *ngIf="!userIsAuthenticated">
-      <a mat-button routerLink="/signup" routerLinkActive="mat-accent">Signup</a>
+      <a mat-button routerLink="/auth/signup" routerLinkActive="mat-accent">Signup</a>
     </li>
     <li *ngIf="userIsAuthenticated">
       <button mat-button (click)="onLogout()">Logout</button>
